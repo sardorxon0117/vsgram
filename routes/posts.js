@@ -1,0 +1,32 @@
+const express = require("express");
+const router = express.Router();
+const db = require("../db");
+
+// Create post
+router.post("/", async (req, res) => {
+  const { customer_id, post, hashtag } = req.body;
+
+  const result = await db.query(
+    "INSERT INTO posts (customer_id, post, hashtag) VALUES ($1,$2,$3) RETURNING *",
+    [customer_id, post, hashtag]
+  );
+
+  res.json(result.rows[0]);
+});
+
+// Get all posts + like count
+router.get("/", async (req, res) => {
+  const result = await db.query(`
+    SELECT p.post_id, p.post, p.hashtag, c.username,
+           COUNT(l.like_id) AS like_count
+    FROM posts p
+    JOIN customers c ON p.customer_id = c.customer_id
+    LEFT JOIN likes l ON p.post_id = l.post_id
+    GROUP BY p.post_id, c.username
+    ORDER BY p.post_id DESC
+  `);
+
+  res.json(result.rows);
+});
+
+module.exports = router;
