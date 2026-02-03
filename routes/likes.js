@@ -59,12 +59,55 @@ router.post("/", async (req, res) => {
 router.delete("/", async (req, res) => {
   const { post_id, customer_id } = req.body;
 
-  await db.query(
-    "DELETE FROM likes WHERE post_id=$1 AND customer_id=$2",
-    [post_id, customer_id]
-  );
+  try {
+    // 1️⃣ Post bormi?
+    const postCheck = await db.query(
+      "SELECT post_id FROM posts WHERE post_id = $1",
+      [post_id]
+    );
+    if (postCheck.rows.length === 0) {
+      return res.status(404).json({
+        message: "Post not found"
+      });
+    }
 
-  res.json({ message: "Unliked" });
+    // 2️⃣ User bormi?
+    const userCheck = await db.query(
+      "SELECT customer_id FROM customers WHERE customer_id = $1",
+      [customer_id]
+    );
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+
+    // 3️⃣ Like bormi?
+    const likeCheck = await db.query(
+      "SELECT like_id FROM likes WHERE post_id=$1 AND customer_id=$2",
+      [post_id, customer_id]
+    );
+    if (likeCheck.rows.length === 0) {
+      return res.status(400).json({
+        message: "Like not found"
+      });
+    }
+
+    // 4️⃣ Like o‘chirish
+    await db.query(
+      "DELETE FROM likes WHERE post_id=$1 AND customer_id=$2",
+      [post_id, customer_id]
+    );
+
+    res.json({ message: "Unliked" });
+
+  } catch (err) {
+    res.status(500).json({
+      message: "Server error",
+      error: err.message
+    });
+  }
 });
+
 
 module.exports = router;
