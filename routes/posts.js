@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
     SELECT p.post_id,
            p.post,
            p.hashtag,
-           p.created_at,
+           TO_CHAR(p.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
            c.username,
            COUNT(l.like_id) AS like_count
     FROM posts p
@@ -32,6 +32,7 @@ router.get("/", async (req, res) => {
 
   res.json(result.rows);
 });
+
 
 router.delete("/del/:id", async (req, res) => {
   const { id } = req.params;

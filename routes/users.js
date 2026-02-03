@@ -143,5 +143,27 @@ router.delete("/del/:id", async (req, res) => {
   }
 });
 
+router.get("/admin", async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT customer_id,
+             username,
+             email,
+             bio,
+             TO_CHAR(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at
+      FROM customers
+      ORDER BY created_at DESC
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({
+      message: "Server error",
+      error: err.message
+    });
+  }
+});
+
+
 
 module.exports = router;
