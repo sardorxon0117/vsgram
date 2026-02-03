@@ -47,7 +47,7 @@ router.delete("/del/:id", async (req, res) => {
     }
     res.status(200).json({
         message: "Post muvaffaqqiyatli o'chirildi:",
-        deleteCustomer: result.rows[0]
+        deletePost: result.rows[0]
     });
 
   } catch (err) {
