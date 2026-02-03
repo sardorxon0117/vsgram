@@ -17,13 +17,17 @@ router.post("/", async (req, res) => {
 // Get all posts + like count
 router.get("/", async (req, res) => {
   const result = await db.query(`
-    SELECT p.post_id, p.post, p.hashtag, c.username,
+    SELECT p.post_id,
+           p.post,
+           p.hashtag,
+           p.created_at,
+           c.username,
            COUNT(l.like_id) AS like_count
     FROM posts p
     JOIN customers c ON p.customer_id = c.customer_id
     LEFT JOIN likes l ON p.post_id = l.post_id
     GROUP BY p.post_id, c.username
-    ORDER BY p.post_id DESC
+    ORDER BY p.created_at DESC
   `);
 
   res.json(result.rows);
