@@ -29,4 +29,33 @@ router.get("/", async (req, res) => {
   res.json(result.rows);
 });
 
+router.delete("/del/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await db.query(
+      `delete from posts
+      where post_id = $1
+      returning*`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Post topilmadi"
+      });
+    }
+    res.status(200).json({
+        message: "Post muvaffaqqiyatli o'chirildi:",
+        deleteCustomer: result.rows[0]
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      message: "Server error",
+      error: err.message
+    });
+  }
+});
+
 module.exports = router;
